@@ -1,0 +1,12 @@
+appId: com.tripagit.app
+---
+- launchApp
+- extendedWaitUntil: { visible: "도쿄 4박5일|Tokyo, 5 days", timeout: 40000 }
+- tapOn: { text: "닫기|Close", optional: true }
+- tapOn: "도쿄 4박5일|Tokyo, 5 days"
+- extendedWaitUntil: { visible: "메이지 신궁|Meiji Jingu", timeout: 30000 }
+- tapOn: { text: "대화.*|Chat.*" }
+- extendedWaitUntil: { visible: ".*이자카야.*|.*izakaya.*", timeout: 20000 }
+- tapOn: { text: "닫기|Close", optional: true }
+- waitForAnimationToEnd: { timeout: 4000 }
+- takeScreenshot: raw-09-chat

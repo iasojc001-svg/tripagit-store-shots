@@ -1,0 +1,95 @@
+# App Store 스크린샷 촬영(공개 저장소 — 맥 실행기 무료). 앱 코드는 없다: EAS의 store-shots 시뮬레이터 빌드를 받아 Maestro로 찍고 store-shots-out 브랜치에 올린다.
+# 비밀값: EXPO_TOKEN · SHOTS_EMAIL · SHOTS_PASSWORD. 언어 = LOCALE 파일(ko | en).
+name: store-shots
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  MAESTRO_CLI_NO_ANALYTICS: "1"
+  # 11-10 2회차: 맥 러너에서 Maestro 아이폰 드라이버가 기본 시간 안에 안 떠 로그인 전에 실패 — 넉넉히
+  MAESTRO_DRIVER_STARTUP_TIMEOUT: "300000"
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: curl -fsSL "https://get.maestro.mobile.dev" | bash
+      # 시뮬레이터는 맥의 시간대를 따른다 — 여행 '오늘'과 날씨가 한국 날짜로 잡히게
+      - run: sudo systemsetup -settimezone Asia/Seoul
+      - name: 빌드 받기 · 시뮬레이터 켜기
+        env: { EXPO_TOKEN: "${{ secrets.EXPO_TOKEN }}" }
+        run: |
+          # 빌드는 번호로 받는다(앱 프로젝트 폴더가 없어 eas-cli 대신 Expo API) — store-shots 아이폰 시뮬레이터 1.2.0, 11-10
+          BUILD_ID=c4aa35f1-75a9-4228-ac2f-9ae6dfeda5bf
+          curl -fsS https://api.expo.dev/graphql -H "Authorization: Bearer $EXPO_TOKEN" -H "Content-Type: application/json" -d "{\"query\":\"{ builds { byId(buildId: \\\"$BUILD_ID\\\") { id appVersion gitCommitHash artifacts { applicationArchiveUrl } } } }\"}" > /tmp/b.json
+          node -e 'const j=require("/tmp/b.json");const b=j.data.builds.byId;console.log(b.id,b.appVersion,b.gitCommitHash);require("fs").writeFileSync("/tmp/url",b.artifacts.applicationArchiveUrl)'
+          curl -fsSL -o /tmp/app.tar.gz "$(cat /tmp/url)"
+          mkdir -p /tmp/app && tar -xzf /tmp/app.tar.gz -C /tmp/app
+          xcrun simctl list devices available | grep -E "iPhone 1[5-7]" || true
+          UDID=$(xcrun simctl list devices available | grep -m1 -E "iPhone 16 Plus|iPhone 15 Plus|iPhone 15 Pro Max" | grep -oE '[0-9A-F-]{36}')
+          echo "UDID=$UDID" >> $GITHUB_ENV
+          xcrun simctl boot "$UDID" && xcrun simctl bootstatus "$UDID"
+          # LOCALE 파일(ko | en)로 시뮬레이터 언어를 고른다 — 11-10 영어(미국) 스크린샷
+          LC=$(cat "$GITHUB_WORKSPACE/LOCALE" 2>/dev/null || echo ko)
+          if [ "$LC" = en ]; then LANGS=en-US; LOC=en_US; else LANGS=ko-KR; LOC=ko_KR; fi
+          xcrun simctl spawn "$UDID" defaults write "Apple Global Domain" AppleLanguages -array $LANGS
+          xcrun simctl spawn "$UDID" defaults write "Apple Global Domain" AppleLocale -string $LOC
+          xcrun simctl shutdown "$UDID" && xcrun simctl boot "$UDID" && xcrun simctl bootstatus "$UDID"
+          xcrun simctl install "$UDID" /tmp/app/*.app
+          xcrun simctl status_bar "$UDID" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
+      - name: 촬영
+        env:
+          SHOTS_EMAIL: ${{ secrets.SHOTS_EMAIL }}
+          SHOTS_PASSWORD: ${{ secrets.SHOTS_PASSWORD }}
+        run: |
+          mkdir -p /tmp/out && cd /tmp/out
+          M=$HOME/.maestro/bin/maestro
+          if ! { $M test -e SMOKE_EMAIL="$SHOTS_EMAIL" -e SMOKE_PASSWORD="$SHOTS_PASSWORD" "$GITHUB_WORKSPACE/maestro/login.yaml" > login1.log 2>&1 || $M test -e SMOKE_EMAIL="$SHOTS_EMAIL" -e SMOKE_PASSWORD="$SHOTS_PASSWORD" "$GITHUB_WORKSPACE/maestro/login.yaml" > login.log 2>&1; }; then
+            echo "FAIL login" >> result.txt
+            xcrun simctl io booted screenshot fail-login.png || true
+            xcrun simctl spawn booted log show --last 4m --style compact --predicate 'process CONTAINS "TripAgit" OR eventMessage CONTAINS "com.tripagit.app"' > app.log 2>&1 || true
+            tail -c 300000 app.log > app-tail.log; rm -f app.log
+            exit 1
+          fi
+          # 묶음마다 따로 — 하나가 실패해도 나머지는 찍는다. 실패한 묶음은 그 순간 화면 + 화면 글자를 남긴다
+          # ONLY 파일이 있으면 거기 적힌 묶음만(다시 찍을 것만 — 맥 시간 아끼기)
+          ONLY="$GITHUB_WORKSPACE/ONLY"
+          for f in "$GITHUB_WORKSPACE"/maestro/shots/*.yaml; do
+            n=$(basename "$f" .yaml)
+            if [ -f "$ONLY" ] && ! grep -qx "$n" "$ONLY"; then continue; fi
+            if $M test "$f"; then echo "OK $n" >> result.txt; else
+              echo "FAIL $n" >> result.txt
+              xcrun simctl io booted screenshot "fail-$n.png" || true
+              $M hierarchy > h.json 2>/dev/null || true
+              node -e 'const s=require("fs").readFileSync("h.json","utf8");const j=JSON.parse(s.slice(s.indexOf("{")));const o=[];(function w(n){const a=n.attributes||{};const t=[a.text,a.accessibilityText,a["resource-id"]].filter(Boolean).join(" | ");if(t)o.push(t+"  @"+(a.bounds||""));(n.children||[]).forEach(w)})(j);require("fs").writeFileSync(process.argv[1],o.join("\n"))' "fail-$n.txt" || true
+              rm -f h.json
+            fi
+          done
+          cat result.txt
+      # 실패해도 그때까지 찍은 것 + 지금 화면 + 화면 글자를 올린다(다음 실행을 고치려고)
+      - name: 지금 화면 · 글자
+        if: always()
+        run: |
+          mkdir -p /tmp/out && cd /tmp/out
+          xcrun simctl io booted screenshot now.png || true
+          # Maestro 기록(실패 순간 캡처 · maestro.log)
+          mkdir -p mtests raw && cp -R ~/.maestro/tests/* mtests/ 2>/dev/null || true
+          find mtests -path "*takeScreenshot*" -name "raw-*.png" -exec cp {} raw/ ; 2>/dev/null || true
+          find mtests -name "*.log" -size +2M -delete 2>/dev/null || true
+          ls -la /tmp/out
+      - name: store-shots-out 브랜치에 올리기
+        if: always()
+        run: |
+          cd /tmp/out
+          git init -q -b store-shots-out
+          git config user.name "store-shots" && git config user.email "actions@github.com"
+          git add -A && git commit -qm "store-shots ${GITHUB_SHA::9} $(date +%F_%T)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" store-shots-out

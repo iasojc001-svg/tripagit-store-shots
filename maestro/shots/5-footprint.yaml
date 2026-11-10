@@ -1,0 +1,25 @@
+appId: com.tripagit.app
+---
+- launchApp
+- extendedWaitUntil: { visible: "도쿄 4박5일|Tokyo, 5 days", timeout: 40000 }
+- tapOn: { text: "닫기|Close", optional: true }
+- tapOn: "발자취|Footprints"
+- waitForAnimationToEnd: { timeout: 8000 }
+- takeScreenshot: raw-21-footprint
+- scroll
+- takeScreenshot: raw-22-footprint-2
+- tapOn: { text: "모두 보기|See all", optional: true }
+- waitForAnimationToEnd: { timeout: 6000 }
+- takeScreenshot: raw-23-fp-cards
+- tapOn: { text: "그리스|Greece", optional: true }
+- waitForAnimationToEnd: { timeout: 8000 }
+- takeScreenshot: raw-24-fp-card
+- launchApp
+- extendedWaitUntil: { visible: "도쿄 4박5일|Tokyo, 5 days", timeout: 40000 }
+- tapOn: "발자취|Footprints"
+- waitForAnimationToEnd: { timeout: 5000 }
+- tapOn: "지구본을 전체 화면으로|Open the globe full screen"
+- waitForAnimationToEnd: { timeout: 10000 }
+- takeScreenshot: raw-25-globe
+- waitForAnimationToEnd: { timeout: 10000 }
+- takeScreenshot: raw-25b-globe

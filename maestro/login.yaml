@@ -1,0 +1,62 @@
+# 시험 계정 로그인. store-shots 빌드(테스트 프로젝트 · 전용 로그인 칸)에서만 돈다 — 라이브 앱 · 대표 폰에 돌리지 말 것(앱 자료를 지운다).
+# 값: maestro test -e SMOKE_EMAIL=… -e SMOKE_PASSWORD=… (자료는 scripts/seed-app-smoke.js)
+appId: com.tripagit.app
+---
+- launchApp:
+    clearState: true
+# 느린 에뮬레이터의 "응답 없음" 창은 기다리기로 넘긴다
+- tapOn:
+    text: "Wait"
+    optional: true
+# 첫 권한 안내(시안 104) — 늦게 뜨므로 기다렸다 누른다
+- extendedWaitUntil:
+    visible: "확인|OK"
+    timeout: 45000
+- tapOn: "확인|OK"
+- extendedWaitUntil:
+    visible:
+      id: "shots-email"
+    timeout: 30000
+- tapOn:
+    id: "shots-email"
+- inputText: ${SMOKE_EMAIL}
+# 키보드가 비밀번호 칸을 가린다. 아이폰은 hideKeyboard가 실패해 Return으로 닫는다(11-02 GitHub 실행)
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - pressKey: Enter
+- tapOn:
+    id: "shots-password"
+- inputText: ${SMOKE_PASSWORD}
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - pressKey: Enter
+- tapOn:
+    id: "shots-submit"
+- extendedWaitUntil:
+    visible: "내 여행|My trips"
+    timeout: 30000
+# 안드로이드의 비밀번호 저장 창이 화면을 덮는다 — 저장하지 않는다
+- extendedWaitUntil:
+    visible: "Not now|나중에"
+    timeout: 8000
+    optional: true
+- tapOn:
+    text: "Not now|나중에"
+    optional: true
+- extendedWaitUntil:
+    visible: "새 여행|New trip"
+    timeout: 30000

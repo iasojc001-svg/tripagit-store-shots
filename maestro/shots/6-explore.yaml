@@ -1,0 +1,24 @@
+appId: com.tripagit.app
+---
+- launchApp
+- extendedWaitUntil: { visible: "도쿄 4박5일|Tokyo, 5 days", timeout: 40000 }
+- tapOn: { text: "닫기|Close", optional: true }
+- tapOn: "탐색|Explore"
+- waitForAnimationToEnd: { timeout: 8000 }
+- takeScreenshot: raw-26-explore
+- openLink: "tripagit://guide/tokyo-classic-2days"
+# 아이폰이 "TripAgit에서 열겠습니까?"를 묻는다(3회차)
+- tapOn: { text: "열기|Open", optional: true }
+- extendedWaitUntil: { visible: "내 여행에 넣기|Add to my trip", timeout: 30000 }
+- waitForAnimationToEnd: { timeout: 6000 }
+- takeScreenshot: raw-27-course
+- scroll
+- waitForAnimationToEnd: { timeout: 3000 }
+- takeScreenshot: raw-28-course-2
+- scrollUntilVisible: { element: { text: "내 여행에 넣기|Add to my trip" }, direction: UP, timeout: 10000 }
+- tapOn: "내 여행에 넣기|Add to my trip"
+- waitForAnimationToEnd: { timeout: 4000 }
+- takeScreenshot: raw-29-course-add
+- tapOn: { text: '[0-9]+곳 넣기|Add [0-9]+' }
+- waitForAnimationToEnd: { timeout: 8000 }
+- takeScreenshot: raw-30-course-added

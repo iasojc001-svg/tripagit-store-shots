@@ -1,0 +1,36 @@
+# App Store 스크린샷 날것(1.2, 11-10) — 파일마다 따로 돈다(하나가 실패해도 나머지는 찍힌다). 순서 = 파일 이름. 맨 끝 6-explore는 도쿄 여행에 코스를 실제로 넣는다.
+# 자료: scripts/seed-store-demo.js(테스트 프로젝트 store-demo 계정, 찍는 날 직전). 실행: .github/workflows/store-shots.yml
+appId: com.tripagit.app
+---
+- launchApp
+- extendedWaitUntil: { visible: "도쿄 4박5일|Tokyo, 5 days", timeout: 40000 }
+- tapOn: { text: "닫기|Close", optional: true }
+- waitForAnimationToEnd: { timeout: 4000 }
+- takeScreenshot: raw-01-home
+- tapOn: "도쿄 4박5일|Tokyo, 5 days"
+- extendedWaitUntil: { visible: "메이지 신궁|Meiji Jingu", timeout: 30000 }
+- waitForAnimationToEnd: { timeout: 8000 }
+- takeScreenshot: raw-02-sched-map
+- tapOn: { text: "3일차.*|Day 3.*", optional: true }
+- waitForAnimationToEnd: { timeout: 4000 }
+- takeScreenshot: raw-03-sched-day3
+- tapOn: { text: "2일차.*|Day 2.*", optional: true }
+- waitForAnimationToEnd: { timeout: 6000 }
+- takeScreenshot: raw-02b-sched-map
+# 목록 시트를 위로 끌어 일정(메모 · 거리)을 많이 보이게
+- swipe: { from: { label: "끌어서 지도 크기 조절|Drag to resize the map" }, direction: UP, duration: 900 }
+- waitForAnimationToEnd: { timeout: 3000 }
+- takeScreenshot: raw-04-sched-list
+- tapOn: "예약|Bookings"
+- waitForAnimationToEnd: { timeout: 6000 }
+- takeScreenshot: raw-05-book
+- scroll
+- waitForAnimationToEnd: { timeout: 3000 }
+- takeScreenshot: raw-06-book-2
+- tapOn: "지출|Expenses"
+- extendedWaitUntil: { visible: ".*받을 돈.*|.*보낼 돈.*|정산 보기|.*owes you.*|You owe.*|See settlement", timeout: 20000 }
+- waitForAnimationToEnd: { timeout: 4000 }
+- takeScreenshot: raw-07-expense
+- scroll
+- waitForAnimationToEnd: { timeout: 3000 }
+- takeScreenshot: raw-08-expense-2
