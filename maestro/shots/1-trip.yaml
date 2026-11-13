@@ -8,7 +8,7 @@ appId: com.tripagit.app
 - waitForAnimationToEnd: { timeout: 4000 }
 - takeScreenshot: raw-01-home
 - tapOn: "도쿄 4박5일|Tokyo, 5 days"
-- extendedWaitUntil: { visible: "메이지 신궁|Meiji Jingu", timeout: 30000 }
+- extendedWaitUntil: { visible: "나리타 공항 출발|Depart from Narita|호텔 체크아웃|Hotel check-out", timeout: 30000 }
 - waitForAnimationToEnd: { timeout: 8000 }
 - takeScreenshot: raw-02-sched-map
 - tapOn: { text: "3일차.*|Day 3.*", optional: true }
