@@ -5,9 +5,9 @@ appId: com.tripagit.app
 - extendedWaitUntil: { visible: "내 여행|My trips", timeout: 40000 }
 - tapOn: { text: "닫기|Close", optional: true }
 - waitForAnimationToEnd: { timeout: 4000 }
-- scrollUntilVisible: { element: { text: "파리 3박4일" }, direction: DOWN, timeout: 20000 }
+- extendedWaitUntil: { visible: "파리 3박4일, .*", timeout: 20000 }
 - takeScreenshot: raw-51-home
-- tapOn: "파리 3박4일"
+- tapOn: "파리 3박4일, .*"
 - extendedWaitUntil: { visible: "샤를 드골 공항 도착|생트샤펠", timeout: 30000 }
 - waitForAnimationToEnd: { timeout: 8000 }
 - takeScreenshot: raw-52-open
