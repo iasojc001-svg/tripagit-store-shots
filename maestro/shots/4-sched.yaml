@@ -1,0 +1,19 @@
+# 11-14: 1장 노트북 옆 폰 — 일정이 꽉 찬 2일차(메이지 신궁 → 시부야)로 목록을 올리고, 여행 전체 지도도 한 장
+appId: com.tripagit.app
+---
+- launchApp
+- extendedWaitUntil: { visible: "도쿄 4박5일|Tokyo, 5 days", timeout: 40000 }
+- tapOn: { text: "닫기|Close", optional: true }
+- tapOn: "도쿄 4박5일|Tokyo, 5 days"
+- extendedWaitUntil: { visible: "나리타 공항 출발|Depart from Narita|호텔 체크아웃|Hotel check-out", timeout: 30000 }
+- waitForAnimationToEnd: { timeout: 6000 }
+- tapOn: { text: "여행 전체|Whole trip|All days", optional: true }
+- waitForAnimationToEnd: { timeout: 8000 }
+- takeScreenshot: raw-41-all-map
+- scrollUntilVisible: { element: { text: "메이지 신궁|Meiji Jingu" }, direction: UP, timeout: 20000 }
+- scrollUntilVisible: { element: { text: "2일차.*|Day 2.*" }, direction: UP, timeout: 10000, optional: true }
+- waitForAnimationToEnd: { timeout: 8000 }
+- takeScreenshot: raw-42-day2
+- tapOn: { text: "2일차만|Day 2 only", optional: true }
+- waitForAnimationToEnd: { timeout: 8000 }
+- takeScreenshot: raw-43-day2-map
