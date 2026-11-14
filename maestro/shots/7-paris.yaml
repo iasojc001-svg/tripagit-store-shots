@@ -1,0 +1,21 @@
+# 11-14: 랜딩 시안 7번(웹 → 앱 같은 여행) — 웹 파리 샘플과 같은 파리 여행 2일차(09:00 생트샤펠부터), 위 지도 + 아래 목록
+appId: com.tripagit.app
+---
+- launchApp
+- extendedWaitUntil: { visible: "내 여행|My trips", timeout: 40000 }
+- tapOn: { text: "닫기|Close", optional: true }
+- waitForAnimationToEnd: { timeout: 4000 }
+- scrollUntilVisible: { element: { text: "파리 3박4일" }, direction: DOWN, timeout: 20000 }
+- takeScreenshot: raw-51-home
+- tapOn: "파리 3박4일"
+- extendedWaitUntil: { visible: "샤를 드골 공항 도착|생트샤펠", timeout: 30000 }
+- waitForAnimationToEnd: { timeout: 8000 }
+- takeScreenshot: raw-52-open
+- tapOn: { text: "2일차.*", optional: true }
+- waitForAnimationToEnd: { timeout: 8000 }
+- tapOn: { text: "2일차만", optional: true }
+- waitForAnimationToEnd: { timeout: 8000 }
+- takeScreenshot: raw-53-day2
+- scrollUntilVisible: { element: { text: "생트샤펠" }, direction: UP, timeout: 10000, optional: true }
+- waitForAnimationToEnd: { timeout: 6000 }
+- takeScreenshot: raw-54-day2-top
