@@ -1,0 +1,26 @@
+Running on iPhone 16 Plus - iOS 18.5 - F853CBCE-C2DF-4188-AAF4-B3F3E24815B9
+ > Flow login
+Launch app "com.tripagit.app" with clear state... COMPLETED
+Tap on (Optional) "Wait"... WARNED
+Assert that "확인|OK" is visible... COMPLETED
+Tap on "확인|OK"... COMPLETED
+Assert that id: shots-email is visible... COMPLETED
+Tap on id: shots-email... COMPLETED
+Input text ${SMOKE_EMAIL}... COMPLETED
+Run flow when Platform is ANDROID...
+Run flow when Platform is ANDROID... SKIPPED
+Run flow when Platform is IOS...
+  Press Enter key... COMPLETED
+Run flow when Platform is IOS... COMPLETED
+Tap on id: shots-password... COMPLETED
+Input text ${SMOKE_PASSWORD}... COMPLETED
+Run flow when Platform is ANDROID...
+Run flow when Platform is ANDROID... SKIPPED
+Run flow when Platform is IOS...
+  Press Enter key... COMPLETED
+Run flow when Platform is IOS... COMPLETED
+Tap on id: shots-submit... COMPLETED
+Assert that "내 여행|My trips" is visible... COMPLETED
+Assert that (Optional) "Not now|나중에" is visible... WARNED
+Tap on (Optional) "Not now|나중에"... WARNED
+Assert that "새 여행|New trip" is visible... COMPLETED
