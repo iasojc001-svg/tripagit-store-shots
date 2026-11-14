@@ -85,7 +85,7 @@ jobs:
           xcrun simctl io booted screenshot now.png || true
           # Maestro 기록(실패 순간 캡처 · maestro.log)
           mkdir -p mtests raw && cp -R ~/.maestro/tests/* mtests/ 2>/dev/null || true
-          find mtests -path "*takeScreenshot*" -name "raw-*.png" -exec cp {} raw/ ; 2>/dev/null || true
+          find mtests -path "*takeScreenshot*" -name "raw-*.png" -exec cp {} raw/ \; 2>/dev/null || true
           find mtests -name "*.log" -size +2M -delete 2>/dev/null || true
           ls -la /tmp/out
       - name: store-shots-out 브랜치에 올리기
