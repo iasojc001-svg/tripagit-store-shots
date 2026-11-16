@@ -80,6 +80,9 @@ jobs:
       # 실패해도 그때까지 찍은 것 + 지금 화면 + 화면 글자를 올린다(다음 실행을 고치려고)
       - name: 지금 화면 · 글자
         if: always()
+        env:
+          SHOTS_EMAIL: ${{ secrets.SHOTS_EMAIL }}
+          SHOTS_PASSWORD: ${{ secrets.SHOTS_PASSWORD }}
         run: |
           mkdir -p /tmp/out && cd /tmp/out
           xcrun simctl io booted screenshot now.png || true
@@ -87,6 +90,12 @@ jobs:
           mkdir -p mtests raw && cp -R ~/.maestro/tests/* mtests/ 2>/dev/null || true
           find mtests -path "*takeScreenshot*" -name "raw-*.png" -exec cp {} raw/ \; 2>/dev/null || true
           find mtests -name "*.log" -size +2M -delete 2>/dev/null || true
+          # 11-16 보안: 이 브랜치는 공개다 — Maestro commands*.json 에 로그인 칸에 넣은 값이 그대로 남았다(11-14 실행).
+          # 명령 기록은 올리지 않고, 계정 값이 든 파일은 무엇이든 지운다(값은 찍지 않는다).
+          find . -name "commands*.json" -delete 2>/dev/null || true
+          for v in "$SHOTS_EMAIL" "$SHOTS_PASSWORD"; do
+            if [ -n "$v" ]; then grep -rlF -- "$v" . 2>/dev/null | xargs -r rm -f; fi
+          done
           ls -la /tmp/out
       - name: store-shots-out 브랜치에 올리기
         if: always()
